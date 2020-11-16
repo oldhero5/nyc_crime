@@ -14,6 +14,8 @@ The output of this is a model that police officers can use to predict crime in e
 
 Please visit the follow site to see the minimum viable product. https://oldhero5.shinyapps.io/nyc_crime/ 
 
+Additionally, the repo is available @ https://github.com/oldhero5/nyc_crime
+
 
 ```{r, echo = FALSE, warning=FALSE}
 #load libraries
@@ -43,7 +45,9 @@ df_shooting <- read_csv("https://data.cityofnewyork.us/api/views/833y-fsy8/rows.
 
 ```
 
-### Let's begin exploring the data to see any initial insights. 
+#### Exploratory Data Analysis
+
+ Let's begin exploring the data to see any initial insights. 
 
 ```{r echo = T}
 
@@ -60,7 +64,7 @@ glimpse(df_shooting)
 
 ```
 
-### Let's build a dataset that combines all the arrest data into one while removing duplicates from where they overlap.
+Let's build a dataset that combines all the arrest data into one while removing duplicates from where they overlap.
 
 ```{r}
 df_arrests <- df_arrests_hist %>% 
@@ -77,7 +81,7 @@ df <- df_arrests %>%
   bind_rows(df_shooting)
 glimpse(df)
 ```
-### I'm going to first look at arrest data and see what types of categories exist. I have a feeling that some types of crimes are more frequent than others.
+I'm going to first look at arrest data and see what types of categories exist. I have a feeling that some types of crimes are more frequent than others.
 
 ```{r}
 df%>% 
@@ -85,7 +89,7 @@ df%>%
   
 ```
 
-### Drug offenses seem to be the most frequent historical occurrence within the data. I wonder how that frequency changes with time. Let’s take a look at what the day averages look like each year. 
+Drug offenses seem to be the most frequent historical occurrence within the data. I wonder how that frequency changes with time. Let’s take a look at what the day averages look like each year. 
 It seems that arrests for dangerous drugs are on a decline.
 
 ```{r}
@@ -109,7 +113,7 @@ df %>%
 
 ```
 
-### Perhaps in era of shrinking police budgets, it would be useful to target police officer scheduling to have more police scheduled to be in generally correct locations at the right times to discourage nefarious activities and increase public safety. While Daily Drug arrests might be interesting, they may not be a large danger to society. However, violent crime may be. First, I’ll label data to find violent crime. For this we will need to clean some of the data. Let’s look at the second most common crime assault. In this exploratory data section, I'll use this as a proxy for overall violent crimes to determine a good timeframe to use for predictions.
+Perhaps in era of shrinking police budgets, it would be useful to target police officer scheduling to have more police scheduled to be in generally correct locations at the right times to discourage nefarious activities and increase public safety. While Daily Drug arrests might be interesting, they may not be a large danger to society. However, violent crime may be. First, I’ll label data to find violent crime. For this we will need to clean some of the data. Let’s look at the second most common crime assault. In this exploratory data section, I'll use this as a proxy for overall violent crimes to determine a good time frame to use for predictions.
 
 ```{r}
 
@@ -131,7 +135,8 @@ df %>%
   geom_boxplot(alpha = 0.2, size = 1, show.legend = FALSE)+
   labs(x = NULL, y = "Daily Assault Arrests")
 ```
-### It appears that a large reduction in "ASSAULT 3 & RELATED OFFENSES," occurs around 2015. I'll assume this is the modern era of policing and use only data from 2015 on. 
+
+It appears that a large reduction in "ASSAULT 3 & RELATED OFFENSES," occurs around 2015. I'll assume this is the modern era of policing and use only data from 2015 on. 
 
 ```{r}
 df1 <- df %>%
@@ -160,14 +165,14 @@ df1 <- df %>%
   glimpse(df1)
 ```
 
-### First, I would like to see how many crime categories there are and simplify a way to bin them. My going assumption is to focus on violent crimes, thefts or damage to property, and petty crimes. We will see what the data yields.
+First, I would like to see how many crime categories there are and simplify a way to bin them. My going assumption is to focus on violent crimes, thefts or damage to property, and petty crimes. We will see what the data yields.
 
 ```{r}
 df1 %>% 
   select(ofns_desc) %>% 
   n_distinct()
 ```
-### Eighty-three crime categories are a lot. I think binning could reduce this dimensionality. In this case, I plan to bin by violent crimes, theft or property crimes, and other crimes.
+Eighty-three crime categories are a lot. I think binning could reduce this dimensionality. In this case, I plan to bin by violent crimes, theft or property crimes, and other crimes.
 
 ```{r}
 df1 <- df1 %>% 
@@ -207,8 +212,7 @@ df1 %>%
 
 ```
 
-
-### Three Seems to be more manageable. Now that I have crime data, I can examine any seasonal patterns that might yield insights. For that l will look at scatterplot of the monthly assaults as a proxy measure for violent crimes.
+Three Seems to be more manageable. Now that I have crime data, I can examine any seasonal patterns that might yield insights. For that l will look at scatterplot of the monthly assaults as a proxy measure for violent crimes.
 
 ```{r}
 
@@ -224,7 +228,7 @@ df1 %>%
 
 ```
 
-### There appears to be a seasonal spike in violent crimes during the summer months. It does appear that there is an overall lack of crime reported in 2020 probably due to COVID. With this seasonality in mind, I plan to add NOAA weather data to the overall data set to see how weather might affect the overall daily violent crimes. From previous work with forecasting grocery demand, I know that holidays influence behaviors. I will add a list of national holidays to help tease out any effects that holidays might have on crime.
+There appears to be a seasonal spike in violent crimes during the summer months. It does appear that there is an overall lack of crime reported in 2020 probably due to COVID. With this seasonality in mind, I plan to add NOAA weather data to the overall data set to see how weather might affect the overall daily violent crimes. From previous work with forecasting grocery demand, I know that holidays influence behaviors. I will add a list of national holidays to help tease out any effects that holidays might have on crime.
 
 ```{r}
 # Weather data obtained from NOAA
@@ -240,7 +244,7 @@ df_holiday <- read_csv("usholidays.csv") %>%
 ```
 
 
-### Now lets add these features to our data set.
+Now lets add these features to our data set.
 
 ```{r}
 df1 <-df1 %>% 
@@ -249,7 +253,7 @@ df1 <-df1 %>%
   mutate(holiday = ifelse(is.na(holiday),0,1))
 glimpse(df1)
 ```
-### To do a bit of exploring, I want to see if rain has a visual effect on the number of murders. 
+To do a bit of a sanity check, I want to see if rain has a visual effect on the number of murders. 
 
 ```{r}
 boro_site <- "https://data.cityofnewyork.us/api/geospatial/tqmj-j8zm?method=export&format=GeoJSON" #CAA internet blocked me from downloading this
@@ -271,7 +275,8 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE))
 
 ```
-### The Map above demonstrates why I think weather is a factor. If it’s a rainy day there are way less shooting murders. I think I should model crime. I plan to focus on building a predictive model across each Boro to determine how many violent crimes, theft/property crimes and other crimes the NYPD should expect on a given month and date of week. The parameters to control will include weather and holidays. 
+
+The Map above demonstrates why I think weather is a factor. If it’s a rainy day there are way less shooting murders. I think I should model crime. I plan to focus on building a predictive model across each Boro to determine how many violent crimes, theft/property crimes and other crimes the NYPD should expect on a given month and date of week. The parameters to control will include weather and holidays. 
 
 ```{r}
 df2 <-  df1 %>% 
@@ -292,7 +297,7 @@ df2 <-  df1 %>%
 glimpse(df2)
 ```
 
-### Since we are attempting to predict 3 outputs across 5 boros I plan to take a simple approach using a nested linear model.  
+Since we are attempting to predict 3 outputs across 5 boros I plan to take a simple approach using a nested linear model.  
 
 ```{r}
 library(tidymodels)
@@ -311,7 +316,7 @@ eval
 ```
 
 
-### The models are not great overall, but it is easy to tweak and refine the assumptions to build a more predictive model. In this example, I'm just using a linear model to use as to build a minimum viable product that the client can use in the future. Now that I have a model, I'll design a method to take user input and make a daily prediction. The NYPD could better allocate their scarce resources to the correct Boros where they should expect higher crime rates on a given day of a month.I'll use a shiny app for this. 
+The models are not great overall, but it is easy to tweak and refine the assumptions to build a more predictive model. In this example, I'm just using a linear model to use as to build a minimum viable product that the client can use in the future. Now that I have a model, I'll design a method to take user input and make a daily prediction. The NYPD could better allocate their scarce resources to the correct Boros where they should expect higher crime rates on a given day of a month.I'll use a shiny app for this. 
 
 ```{r}
 test <- df2 %>% 
