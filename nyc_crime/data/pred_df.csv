@@ -1,0 +1,16 @@
+boro,crime_type
+BRONX,other
+BRONX,theft_property
+BRONX,violent
+BROOKLYN,other
+BROOKLYN,theft_property
+BROOKLYN,violent
+MANHATTAN,other
+MANHATTAN,theft_property
+MANHATTAN,violent
+QUEENS,other
+QUEENS,theft_property
+QUEENS,violent
+STATEN ISLAND,other
+STATEN ISLAND,theft_property
+STATEN ISLAND,violent

@@ -1,0 +1,12 @@
+name: nyc_crime
+title: nyc_crime
+username:
+account: oldhero5
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3238682
+bundleId: 3864500
+url: https://oldhero5.shinyapps.io/nyc_crime/
+when: 1605484552.83783
+asMultiple: FALSE
+asStatic: FALSE
